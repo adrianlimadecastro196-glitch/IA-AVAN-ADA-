@@ -2,6 +2,9 @@ import requests
 import os
 import json
 import urllib.parse
+import keep_alive
+keep_alive.t  # inicia o ping
+
 from http.server import HTTPServer, BaseHTTPRequestHandler
 
 try:
