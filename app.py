@@ -4,7 +4,11 @@ import json
 import urllib.parse
 from http.server import HTTPServer, BaseHTTPRequestHandler
 
-GROQ_KEY = os.environ.get('GROQ_KEY', open('/data/data/com.termux/files/home/groq_key.txt').read().strip())
+try:
+    GROQ_KEY = os.environ.get('GROQ_KEY') or open('/data/data/com.termux/files/home/groq_key.txt').read().strip()
+except:
+    GROQ_KEY = os.environ.get('GROQ_KEY', '')
+
 
 historico = []
 
