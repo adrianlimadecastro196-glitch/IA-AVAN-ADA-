@@ -9,7 +9,6 @@ try:
 except:
     GROQ_KEY = os.environ.get('GROQ_KEY', '')
 
-
 historico = []
 
 PROMPT_SISTEMA = """Você é a IA-AVANÇADA, uma inteligência artificial de altíssimo nível com raciocínio excepcional equivalente a um QI de 170.
@@ -115,6 +114,10 @@ class Handler(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(HTML.encode())
     def do_POST(self):
+        if self.path != '/chat':
+            self.send_response(404)
+            self.end_headers()
+            return
         length = int(self.headers['Content-Length'])
         body = self.rfile.read(length).decode()
         params = urllib.parse.parse_qs(body)
@@ -122,6 +125,7 @@ class Handler(BaseHTTPRequestHandler):
         resposta = perguntar(pergunta)
         self.send_response(200)
         self.send_header('Content-type', 'application/json')
+        self.send_header('Access-Control-Allow-Origin', '*')
         self.end_headers()
         self.wfile.write(json.dumps({"resposta": resposta}).encode())
 
