@@ -1,10 +1,10 @@
 import requests
-from http.server import HTTPServer, BaseHTTPRequestHandler
+import os
 import json
 import urllib.parse
+from http.server import HTTPServer, BaseHTTPRequestHandler
 
-with open('/data/data/com.termux/files/home/groq_key.txt', 'r') as f:
-    GROQ_KEY = f.read().strip()
+GROQ_KEY = os.environ.get('GROQ_KEY', open('/data/data/com.termux/files/home/groq_key.txt').read().strip())
 
 historico = []
 
@@ -121,9 +121,10 @@ class Handler(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(json.dumps({"resposta": resposta}).encode())
 
+PORT = int(os.environ.get('PORT', 8080))
 print("=" * 40)
 print("  IA-AVANÇADA rodando! 🧠")
-print("  Abre no navegador: localhost:8080")
+print(f"  Porta: {PORT}")
 print("=" * 40)
-HTTPServer(('0.0.0.0', 8080), Handler).serve_forever()
+HTTPServer(('0.0.0.0', PORT), Handler).serve_forever()
 
