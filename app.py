@@ -92,10 +92,11 @@ function enviar() {
   var chat = document.getElementById('chat');
   chat.innerHTML += '<div class="msg user">' + txt + '</div>';
   document.getElementById('msg').value = '';
-  chat.innerHTML += '<div class="msg ia" id="loading"><b>IA-AVANCADA</b>Pensando...</div>';
+  chat.innerHTML += '<div class="msg ia" id="loading"><b>IA-AVANCADA</b>Processando... (pode levar ate 60s na primeira mensagem)</div>';
   chat.scrollTop = chat.scrollHeight;
   var xhr = new XMLHttpRequest();
   xhr.open('POST', '/chat', true);
+  xhr.timeout = 120000;
   xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
   xhr.onload = function() {
     var d = JSON.parse(xhr.responseText);
@@ -105,6 +106,9 @@ function enviar() {
     linhas.forEach(function(l){ if(l.match(/^\d+\./)) total++; });
     document.getElementById('count').innerText = total;
     document.getElementById('chat').scrollTop = document.getElementById('chat').scrollHeight;
+  };
+  xhr.ontimeout = function() {
+    document.getElementById('loading').outerHTML = '<div class="msg ia"><b>IA-AVANCADA</b>Tempo esgotado. Tente novamente!</div>';
   };
   xhr.send('msg=' + encodeURIComponent(txt));
 }
