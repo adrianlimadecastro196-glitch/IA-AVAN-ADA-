@@ -233,6 +233,8 @@ class Handler(BaseHTTPRequestHandler):
             self.send_header('Content-type', 'application/json; charset=utf-8')
             self.send_header('Content-Length', str(len(out)))
             self.send_header('Access-Control-Allow-Origin', '*')
+self.send_header('Access-Control-Allow-Methods', 'POST, GET, OPTIONS')
+self.send_header('Access-Control-Allow-Headers', 'Content-Type')
             self.end_headers()
             self.wfile.write(out)
         except Exception as e:
