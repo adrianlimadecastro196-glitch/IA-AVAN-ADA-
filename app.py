@@ -55,7 +55,7 @@ HTML = """<!DOCTYPE html>
 <title>IA-AVANCADA</title>
 <style>
 * { margin:0; padding:0; box-sizing:border-box; }
-body { background:#0a0a0f; color:#fff; font-family:Arial,sans-serif; display:flex; flex-direction:column; height:100vh; overflow:hidden; }
+body { background:#0a0a0f; color:#fff; font-family:Arial,sans-serif; display:flex; flex-direction:column; min-height:100vh; }
 #header { background:linear-gradient(135deg,#1a1a2e,#16213e); padding:12px 15px; text-align:center; border-bottom:2px solid #00d4ff44; flex-shrink:0; }
 #header h1 { color:#00d4ff; font-size:1.3em; letter-spacing:2px; }
 #header p { color:#666; font-size:0.75em; margin-top:2px; }
