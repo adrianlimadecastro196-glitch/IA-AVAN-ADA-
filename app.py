@@ -5,8 +5,9 @@ import requests
 import json
 import urllib.parse
 
-PORT = int(os.environ.get("PORT", 8080))
-GROQ_API_KEY = os.environ.get("GROQ_KEY")
+PORT = int(os.environ.get('PORT', 8080))
+GROQ_API_KEY = os.environ.get('GROQ_KEY')
+GROQ_URL = 'https://api.groq.com/openai/v1/chat/completions'
 
 HTML = """<!DOCTYPE html>
 <html lang="pt-br">
@@ -15,8 +16,8 @@ HTML = """<!DOCTYPE html>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>IA-AVANÇADA</title>
     <style>
-        body { background: #000; color: #0f0; font-family: monospace; display: flex; flex-direction: column; min-height: 100vh; margin: 0; padding: 20px; box-sizing: border-box; }
-        #chat { flex: 1; overflow-y: auto; border: 1px solid #0f0; padding: 10px; margin-bottom: 10px; font-size: 16px; }
+        body { background: #000; color: #0f0; font-family: monospace; display; flex; flex-direction: column; min-height: 100vh; margin: 0; padding: 20px; box-sizing: border-box; }
+        #chat { flex: 1; overflow-y: auto; border: 1px solid #0f0; padding: 10px; margin-bottom: 10px; font-size: 16px; min-height: 300px; }
         .controls { display: flex; gap: 10px; padding-bottom: 20px; }
         input { flex: 1; background: #000; border: 1px solid #0f0; color: #0f0; padding: 15px; font-size: 16px; }
         button { background: #0f0; color: #000; border: none; padding: 10px 20px; cursor: pointer; font-weight: bold; }
@@ -43,7 +44,7 @@ HTML = """<!DOCTYPE html>
         function append(text, sender) {
             const div = document.createElement('div');
             div.style.marginBottom = '10px';
-            div.innerHTML = `<b>\({sender}:</b> \){text.replace(/\\n/g, '<br>')}`;
+            div.innerHTML = '<b>' + sender + ':</b> ' + text.split('\\n').join('<br>');
             chat.appendChild(div);
             chat.scrollTop = chat.scrollHeight;
         }
@@ -79,41 +80,28 @@ class Handler(http.server.BaseHTTPRequestHandler):
         self.send_header('Access-Control-Allow-Methods', 'POST, GET, OPTIONS')
         self.send_header('Access-Control-Allow-Headers', 'Content-Type')
         self.end_headers()
-
     def do_GET(self):
         self.send_response(200)
         self.send_header('Content-type', 'text/html; charset=utf-8')
         self.end_headers()
         self.wfile.write(HTML.encode('utf-8'))
-
     def do_POST(self):
         if self.path == '/chat':
             length = int(self.headers['Content-Length'])
             data = self.rfile.read(length).decode('utf-8')
             params = urllib.parse.parse_qs(data)
             msg = params.get('msg', [''])[0]
-            
             res_text = self.call_groq(msg)
-            
             self.send_response(200)
             self.send_header('Content-type', 'application/json; charset=utf-8')
             self.send_header('Access-Control-Allow-Origin', '*')
             self.end_headers()
             self.wfile.write(json.dumps({'resposta': res_text}, ensure_ascii=False).encode('utf-8'))
-
     def call_groq(self, text):
         try:
-            r = requests.post(
-                "https://api.groq.com/openai/v1/chat/completions",
-                headers={"Authorization": f"Bearer {GROQ_API_KEY}"},
-                json={
-                    "model": "llama-3.3-70b-versatile",
-                    "messages": [{"role": "user", "content": text}]
-                }
-            )
+            r = requests.post(GROQ_URL, headers={'Authorization': f'Bearer {GROQ_API_KEY}'}, json={'model': 'llama-3.3-70b-versatile', 'messages': [{'role': 'user', 'content': text}]})
             return r.json()['choices'][0]['message']['content']
-        except:
-            return "Erro ao falar com a IA."
+        except: return 'Erro ao falar com a IA.'
 
-with socketserver.TCPServer(("", PORT), Handler) as httpd:
+with socketserver.TCPServer(('', PORT), Handler) as httpd:
     httpd.serve_forever()
