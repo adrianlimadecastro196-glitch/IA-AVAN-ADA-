@@ -56,14 +56,14 @@ HTML = """<!DOCTYPE html>
 <style>
 * { margin:0; padding:0; box-sizing:border-box; }
 body { background:#0a0a0f; color:#fff; font-family:Arial,sans-serif; display:flex; flex-direction:column; min-height:100vh; }
-#header { background:linear-gradient(135deg,#1a1a2e,#16213e); padding:12px 15px; text-align:center; border-bottom:2px solid #00d4ff44; flex-shrink:0; }
+#header { background:linear-gradient(135deg,#1a1a2e,#16213e); padding:12px 15px; text-align:center; border-bottom:2px solid #00d4ff44; ; }
 #header h1 { color:#00d4ff; font-size:1.3em; letter-spacing:2px; }
 #header p { color:#666; font-size:0.75em; margin-top:2px; }
 #status { font-size:0.7em; padding:2px 8px; border-radius:10px; display:inline-block; margin-top:4px; background:#00ff4422; color:#00ff44; }
-#temas { display:flex; flex-wrap:wrap; gap:6px; padding:8px 12px; background:#0d0d1a; border-bottom:1px solid #00d4ff22; justify-content:center; flex-shrink:0; }
+#temas { display:flex; flex-wrap:wrap; gap:6px; padding:8px 12px; background:#0d0d1a; border-bottom:1px solid #00d4ff22; justify-content:center; ; }
 .tema-btn { background:#1a1a2e; border:1px solid #00d4ff33; color:#00d4ff; padding:6px 12px; border-radius:15px; cursor:pointer; font-size:0.8em; }
 .tema-btn:active { background:#00d4ff; color:#000; }
-#contador { text-align:center; color:#00d4ff66; font-size:0.7em; padding:3px; background:#0d0d1a; flex-shrink:0; }
+#contador { text-align:center; color:#00d4ff66; font-size:0.7em; padding:3px; background:#0d0d1a; ; }
 #chat { flex:1; overflow-y:auto; padding:12px; display:flex; flex-direction:column; gap:10px; }
 .msg { max-width:88%; padding:10px 14px; border-radius:15px; line-height:1.6; font-size:0.9em; word-break:break-word; }
 .user { background:linear-gradient(135deg,#00d4ff,#0088aa); color:#000; align-self:flex-end; border-radius:15px 15px 3px 15px; font-weight:500; }
@@ -71,7 +71,7 @@ body { background:#0a0a0f; color:#fff; font-family:Arial,sans-serif; display:fle
 .ia .nome { color:#00d4ff; font-size:0.8em; font-weight:bold; display:block; margin-bottom:4px; }
 .loading { opacity:0.7; font-style:italic; }
 .erro { border-color:#ff444444; color:#ff8888; }
-#input-area { background:#1a1a2e; padding:10px 12px; border-top:1px solid #00d4ff22; display:flex; gap:8px; flex-shrink:0; }
+#input-area { background:#1a1a2e; padding:10px 12px; border-top:1px solid #00d4ff22; display:flex; gap:8px; ; }
 #msg { flex:1; background:#0a0a0f; border:1px solid #00d4ff33; color:#fff; padding:10px 15px; border-radius:20px; font-size:0.95em; outline:none; }
 #btn { background:linear-gradient(135deg,#00d4ff,#0088aa); color:#000; border:none; padding:10px 18px; border-radius:20px; font-weight:bold; cursor:pointer; font-size:0.95em; min-width:70px; }
 #btn:disabled { opacity:0.5; }
