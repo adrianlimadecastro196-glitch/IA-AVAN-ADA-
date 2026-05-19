@@ -11,7 +11,7 @@ HTML = """<!DOCTYPE html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SKYNET V6 - GOD SPEED</title>
+    <title>SKYNET V6.1 - GOD SPEED</title>
     <style>
         body { background: #000; color: #0f0; font-family: monospace; display: flex; flex-direction: column; min-height: 100vh; margin: 0; }
         header { padding: 15px; border-bottom: 1px solid #0f0; display: flex; justify-content: space-between; background: #000; }
@@ -24,7 +24,7 @@ HTML = """<!DOCTYPE html>
 </head>
 <body>
     <header>
-        <span style="text-shadow: 0 0 10px #0f0;">SKYNET-V6 [GOD SPEED]</span>
+        <span style="text-shadow: 0 0 10px #0f0;">SKYNET-V6.1 [GOD SPEED]</span>
         <button style="background:red; color:white; font-size:10px; cursor:pointer;" onclick="localStorage.clear();location.reload()">PURGE</button>
     </header>
     <div id="chat"></div>
@@ -39,7 +39,14 @@ HTML = """<!DOCTYPE html>
         let hist = JSON.parse(localStorage.getItem('skynet_v6')) || [];
 
         function render() {
-            chat.innerHTML = hist.map(m => `<div><b>\({m.role=='user'?'>>':'IA:'}</b> \){m.content}</div>`).join('<br>');
+            chat.innerHTML = '';
+            hist.forEach(function(m) {
+                var div = document.createElement('div');
+                div.style.marginBottom = '10px';
+                var prefixo = m.role == 'user' ? '<b>>> </b>' : '<b>IA: </b>';
+                div.innerHTML = prefixo + m.content.replace(/\\n/g, '<br>');
+                chat.appendChild(div);
+            });
             chat.scrollTop = chat.scrollHeight;
         }
 
@@ -50,7 +57,7 @@ HTML = """<!DOCTYPE html>
                 const res = await fetch('/chat', {
                     method: 'POST',
                     headers: {'Content-Type':'application/json'},
-                    body: JSON.stringify({messages: hist.slice(-1)}) // Envia apenas a ÚLTIMA mensagem para ser ultra rápido
+                    body: JSON.stringify({messages: hist.slice(-1)})
                 });
                 const d = await res.json();
                 if(d.resposta) {
@@ -58,10 +65,10 @@ HTML = """<!DOCTYPE html>
                     localStorage.setItem('skynet_v6', JSON.stringify(hist));
                     render();
                 } else { throw 1; }
-            } catch {
-                const err = document.createElement('div');
+            } catch (e) {
+                var err = document.createElement('div');
                 err.style.color = 'red';
-                err.innerHTML = '<b>TIMEOUT:</b> Servidor demorou muito. Clique em PURGE e carregue o celular!';
+                err.innerHTML = '<b>TIMEOUT:</b> Peça menos itens por vez (ex: 50) para o servidor não travar!';
                 chat.appendChild(err);
             } finally { btn.disabled=false; }
         }
@@ -77,8 +84,8 @@ class Handler(http.server.BaseHTTPRequestHandler):
             data = json.loads(self.rfile.read(l).decode('utf-8'))
             msgs = [{"role": "system", "content": SYSTEM_PROMPT}] + data['messages']
             try:
-                # Timeout de 28 segundos para respeitar o limite do Render
-                r = requests.post(GROQ_URL, headers={'Authorization': f'Bearer {GROQ_API_KEY}'}, 
+                # O endpoint foi confirmado via busca como sendo o oficial da Groq
+                r = requests.post(GROQ_URL, headers={'Authorization': 'Bearer ' + GROQ_API_KEY}, 
                                   json={'model': 'llama-3.3-70b-versatile', 'messages': msgs, 'max_tokens': 3500}, timeout=28)
                 resp = r.json()['choices'][0]['message']['content']
             except: resp = None
