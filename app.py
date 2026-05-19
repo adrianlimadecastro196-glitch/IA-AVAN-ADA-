@@ -1,9 +1,4 @@
-import http.server
-import socketserver
-import os
-import requests
-import json
-import urllib.parse
+import http.server, socketserver, os, requests, json, urllib.parse
 
 PORT = int(os.environ.get('PORT', 8080))
 GROQ_API_KEY = os.environ.get('GROQ_KEY')
@@ -14,7 +9,7 @@ HTML = """<!DOCTYPE html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IA-AVANÇADA - MODO TURBO</title>
+    <title>IA-AVANÇADA - ESTÁVEL</title>
     <style>
         body { background: #000; color: #0f0; font-family: monospace; display: flex; flex-direction: column; min-height: 100vh; margin: 0; padding: 20px; box-sizing: border-box; }
         #chat { flex: 1; overflow-y: auto; border: 1px solid #0f0; padding: 10px; margin-bottom: 10px; font-size: 16px; min-height: 300px; }
@@ -26,7 +21,7 @@ HTML = """<!DOCTYPE html>
 </head>
 <body>
     <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-        <h2 style="margin:0">QI 200 - TURBO</h2>
+        <h2 style="margin:0">QI 200 - ESTÁVEL</h2>
         <button class="clear-btn" onclick="limparChat()">LIMPAR</button>
     </div>
     <div id="chat"></div>
@@ -61,13 +56,15 @@ HTML = """<!DOCTYPE html>
                 const res = await fetch('/chat', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ messages: historico })
+                    body: JSON.stringify({ messages: historico.slice(-10) })
                 });
                 const data = await res.json();
-                historico.push({ role: 'assistant', content: data.resposta });
-                render(); salvar();
+                if(data.resposta) {
+                    historico.push({ role: 'assistant', content: data.resposta });
+                    render(); salvar();
+                } else { throw new Error(); }
             } catch (e) {
-                appendToScreen('Erro na conexão.', 'SISTEMA');
+                appendToScreen('Erro na conexão. Tente limpar o chat.', 'SISTEMA');
             } finally { btn.disabled = false; }
         }
         function limparChat() {
@@ -96,8 +93,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
         if self.path == '/chat':
             length = int(self.headers['Content-Length'])
             data = json.loads(self.rfile.read(length).decode('utf-8'))
-            messages = data.get('messages', [])
-            res_text = self.call_groq(messages)
+            res_text = self.call_groq(data.get('messages', []))
             self.send_response(200)
             self.send_header('Content-type', 'application/json; charset=utf-8')
             self.send_header('Access-Control-Allow-Origin', '*')
@@ -105,9 +101,11 @@ class Handler(http.server.BaseHTTPRequestHandler):
             self.wfile.write(json.dumps({'resposta': res_text}, ensure_ascii=False).encode('utf-8'))
     def call_groq(self, messages):
         try:
-            r = requests.post(GROQ_URL, headers={'Authorization': f'Bearer {GROQ_API_KEY}'}, json={'model': 'llama-3.3-70b-versatile', 'messages': messages, 'max_tokens': 8000})
+            r = requests.post(GROQ_URL, headers={'Authorization': f'Bearer {GROQ_API_KEY}'}, 
+                             json={'model': 'llama-3.3-70b-versatile', 'messages': messages, 'max_tokens': 4000}, timeout=30)
             return r.json()['choices'][0]['message']['content']
-        except: return "Erro ao falar com a IA."
+        except Exception as e:
+            return "Erro ao falar com a IA. Tente mensagens menores ou limpe o chat."
 
 with socketserver.TCPServer(('', PORT), Handler) as httpd:
     httpd.serve_forever()
