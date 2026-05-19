@@ -9,7 +9,7 @@ HTML = """<!DOCTYPE html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IA-AVANÇADA - ULTRA</title>
+    <title>IA-AVANÇADA - V3</title>
     <style>
         body { background: #000; color: #0f0; font-family: monospace; display: flex; flex-direction: column; min-height: 100vh; margin: 0; padding: 20px; box-sizing: border-box; }
         #chat { flex: 1; overflow-y: auto; border: 1px solid #0f0; padding: 10px; margin-bottom: 10px; font-size: 16px; min-height: 300px; }
@@ -22,7 +22,7 @@ HTML = """<!DOCTYPE html>
 </head>
 <body>
     <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-        <h2 id="status">QI 200 - MODO ULTRA</h2>
+        <h2 id="status">QI 200 - V3</h2>
         <button class="clear-btn" onclick="localStorage.clear();location.reload()">LIMPAR</button>
     </div>
     <div id="chat"></div>
@@ -34,7 +34,6 @@ HTML = """<!DOCTYPE html>
         const chat = document.getElementById('chat');
         const input = document.getElementById('msg');
         const btn = document.getElementById('btn');
-        const status = document.getElementById('status');
         let historico = JSON.parse(localStorage.getItem('chat_memory')) || [];
         
         function render() {
@@ -52,13 +51,13 @@ HTML = """<!DOCTYPE html>
             const text = input.value.trim(); if(!text) return;
             historico.push({ role: 'user', content: text });
             render(); input.value = ''; 
-            btn.disabled = true; btn.innerText = 'GERANDO...';
+            btn.disabled = true; btn.innerText = 'PENSANDO...';
             
             try {
                 const res = await fetch('/chat', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ messages: historico.slice(-5) })
+                    body: JSON.stringify({ messages: historico.slice(-4) })
                 });
                 const data = await res.json();
                 if(data.resposta) {
@@ -68,8 +67,8 @@ HTML = """<!DOCTYPE html>
                 } else { throw new Error(); }
             } catch (e) {
                 const div = document.createElement('div');
-                div.style.color = 'red';
-                div.innerHTML = '<b>ERRO:</b> A resposta foi longa demais. Tente pedir para ela "continuar de onde parou".';
+                div.style.color = 'yellow';
+                div.innerHTML = '<b>DICA:</b> Peça menos itens de cada vez (ex: 2 tópicos) para o servidor não cortar por tempo!';
                 chat.appendChild(div);
             } finally {
                 btn.disabled = false; btn.innerText = 'ENVIAR';
@@ -97,11 +96,10 @@ class Handler(http.server.BaseHTTPRequestHandler):
             length = int(self.headers['Content-Length'])
             data = json.loads(self.rfile.read(length).decode('utf-8'))
             try:
-                # Timeout aumentado para 120 segundos para aguentar respostas longas
                 res = requests.post(GROQ_URL, 
                     headers={'Authorization': f'Bearer {GROQ_API_KEY}'}, 
-                    json={'model': 'llama-3.3-70b-versatile', 'messages': data['messages'], 'max_tokens': 4000},
-                    timeout=120)
+                    json={'model': 'llama-3.3-70b-versatile', 'messages': data['messages'], 'max_tokens': 2000},
+                    timeout=25)
                 resposta = res.json()['choices'][0]['message']['content']
             except:
                 resposta = None
